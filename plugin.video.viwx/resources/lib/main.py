@@ -183,8 +183,9 @@ class Paginator:
         else:
             return self._generate_page()
 
-
-@Route.register(content_type='videos')
+# ITV-003: Customise viewtypes
+# @Route.register(content_type='videos')
+@Route.register(content_type='files')
 def root(_):
     yield Listitem.from_dict(sub_menu_my_itvx, 'My itvX')
     yield Listitem.from_dict(sub_menu_live, 'Live', params={'_cache_to_disc_': False})
@@ -199,7 +200,9 @@ def root(_):
     yield Listitem.search(do_search, Script.localize(TXT_SEARCH))
 
 
-@Route.register(content_type='videos')
+# ITV-003: Customise viewtypes
+# @Route.register(content_type='videos')
+@Route.register(content_type='files')
 def sub_menu_my_itvx(_):
     # Ensure to add at least one parameter to persuade dynamic listing that we actually call the list.
     yield Listitem.from_dict(generic_list, 'My List', params={'list_type': 'mylist', 'filter_char': None})
@@ -319,7 +322,9 @@ def sub_menu_live(_):
         yield li
 
 
-@Route.register(content_type='videos')
+# ITV-003: Customise viewtypes
+# @Route.register(content_type='videos')
+@Route.register(content_type='files')
 def list_collections(_):
     """A list of all available collections."""
     url = 'https://www.itv.com'
@@ -350,8 +355,9 @@ def list_collection_content(addon, url='', slider='', filter_char=None, page_nr=
     paginator = Paginator(shows_list, filter_char, page_nr, url=url)
     yield from paginator
 
-
-@Route.register(content_type='videos')  # 24 * 60)
+# ITV-003: Customise viewtypes
+# @Route.register(content_type='videos')   # 24 * 60
+@Route.register(content_type='files')
 def list_categories(addon):
     """Return a list of all available categories."""
     addon.add_sort_methods(xbmcplugin.SORT_METHOD_UNSORTED,
