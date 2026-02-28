@@ -187,7 +187,7 @@ class Paginator:
 # @Route.register(content_type='videos')
 @Route.register(content_type='files')
 def root(_):
-    # ITV-004: Cosmetic customisation
+    # ITV-004: capitalise itvX
     # yield Listitem.from_dict(sub_menu_my_itvx, 'My itvX')
     yield Listitem.from_dict(sub_menu_my_itvx, 'My ITVX')
     yield Listitem.from_dict(sub_menu_live, 'Live', params={'_cache_to_disc_': False})
@@ -272,8 +272,9 @@ def generic_list(addon, list_type='mylist', filter_char=None, page_nr=0):
         raise ValueError(f"Unknown generic list type: '{list_type}'.")
     yield from Paginator(shows_list, filter_char, page_nr)
 
-
-@Route.register(content_type='videos')
+# ITV-003: Customise viewtypes
+# @Route.register(content_type='videos')
+@Route.register(content_type='tvshows')
 def sub_menu_live(_):
     tv_schedule = itvx.get_live_channels(kodi_utils.local_timezone())
 
@@ -290,7 +291,9 @@ def sub_menu_live(_):
         programs = ('{} - {}'.format(program['startTime'],
                                      program.get('programme_details') or program['programmeTitle'])
                     for program in item['slot'])
-        label = '{}    [COLOR orange]{}[/COLOR]'.format(chan_name, prog_title)
+        # ITV-004: remove orange from label           
+        # label = '{}    [COLOR orange]{}[/COLOR]'.format(chan_name, prog_title)
+        label = '{}    {}'.format(chan_name, prog_title)
 
         callback_kwargs = {
                 'channel': chan_name,
