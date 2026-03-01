@@ -46,6 +46,32 @@ TXT_PREMIUM_CONTENT = 30622
 TXT_ADD_TO_MYLIST = 30801
 TXT_REMOVE_FROM_MYLIST = 30802
 
+# ITV-004: use image with logo        
+def log_message(message, level=xbmc.LOGINFO):
+    """
+    Logs a message to the Kodi log file.
+    
+    :param message: The text to log
+    :param level: Kodi log level (default: LOGINFO)
+    """
+    try:
+        if not isinstance(message, str):
+            message = str(message)
+        xbmc.log(f"[BBC iPlayer] {message}", level)
+    except Exception as e:
+        xbmc.log(f"[BBC iPlayer] Logging failed: {e}", xbmc.LOGERROR)
+
+def strip_before(text: str, marker: str) -> str:
+    """Remove all characters before the first occurrence of marker."""
+    if not marker:
+        raise ValueError("Marker string cannot be empty.")
+    
+    index = text.find(marker)
+    if index == -1:
+        return text  # Marker not found, return original string
+    return text[index:]
+# ITV-004: END use image with logo  
+
 
 def empty_folder():
     # ITV-001: Empty Folder - Notification instead of Dialog
@@ -133,7 +159,7 @@ class Paginator:
         for char in char_list:
             params = {'filter_char': char, 'page_nr': 0}
             params.update(kwargs)
-            yield Listitem.from_dict(callb, char, params=params)
+            yield Listitem.from_dict(callb, char, params=params)        
 
     def _generate_page(self):
         shows_list = self._items_list
@@ -163,6 +189,28 @@ class Paginator:
         for show in shows_list:
             try:
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])
+                
+                # ITV-004: use image with logo
+                listr = str(shows_list)
+                log_message('LISTR = ' + listr)
+                
+                thumbstr = str(li.art.thumb)
+                thumborigstr = thumbstr
+                log_message('THUMB = ' + thumbstr)
+                
+                fanartstr = str(li.art.fanart)
+                log_message('FANART = ' + fanartstr)
+                
+                li.art.thumb = fanartstr
+                thumbstr = str(li.art.thumb)
+                log_message('UPDATED THUMB = ' + thumbstr)
+    
+                li.art.fanart = thumborigstr
+                fanartstr = str(li.art.thumb)
+                
+                log_message('UPDATED FANART = ' + fanartstr)
+                # END ITV-004 use image with logo
+                
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
                 # entries after adding/removing an item, even when the underlying data is cached.
