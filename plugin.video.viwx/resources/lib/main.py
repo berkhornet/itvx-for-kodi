@@ -57,19 +57,9 @@ def log_message(message, level=xbmc.LOGINFO):
     try:
         if not isinstance(message, str):
             message = str(message)
-        xbmc.log(f"[BBC iPlayer] {message}", level)
+        xbmc.log(f"[ITVX] {message}", level)
     except Exception as e:
-        xbmc.log(f"[BBC iPlayer] Logging failed: {e}", xbmc.LOGERROR)
-
-def strip_before(text: str, marker: str) -> str:
-    """Remove all characters before the first occurrence of marker."""
-    if not marker:
-        raise ValueError("Marker string cannot be empty.")
-    
-    index = text.find(marker)
-    if index == -1:
-        return text  # Marker not found, return original string
-    return text[index:]
+        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR)    
 # ITV-004: END use image with logo  
 
 
@@ -190,26 +180,36 @@ class Paginator:
             try:
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])
                 
-                # ITV-004: use image with logo
+                # ITV-004: use image with logo, remove " - x episodes from title"
                 listr = str(shows_list)
-                log_message('LISTR = ' + listr)
+                # log_message('LISTR = ' + listr)
                 
+                # find value for 'thumb'
                 thumbstr = str(li.art.thumb)
                 thumborigstr = thumbstr
-                log_message('THUMB = ' + thumbstr)
+                # log_message('THUMB = ' + thumbstr)
                 
+                # find value for 'fanart'
                 fanartstr = str(li.art.fanart)
-                log_message('FANART = ' + fanartstr)
+                # log_message('FANART = ' + fanartstr)
                 
+                # set value for 'thumb' to value for 'fanart'
                 li.art.thumb = fanartstr
-                thumbstr = str(li.art.thumb)
-                log_message('UPDATED THUMB = ' + thumbstr)
+                # thumbstr = str(li.art.thumb)
+                # log_message('UPDATED THUMB = ' + thumbstr)
     
+                # set value for 'fanart' to original value for 'thumb'
                 li.art.fanart = thumborigstr
-                fanartstr = str(li.art.thumb)
+                # fanartstr = str(li.art.thumb)                
+                # log_message('UPDATED FANART = ' + fanartstr)
                 
-                log_message('UPDATED FANART = ' + fanartstr)
-                # END ITV-004 use image with logo
+                # find value for 'label'
+                labelstr = str(li.label)
+                # log_message('LABEL = ' + labelstr)
+                # set value for 'title' to 'label' 
+                li.info.title = labelstr
+                
+                # END ITV-004: use image with logo, remove " - x episodes from title"
                 
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
