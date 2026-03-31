@@ -67,7 +67,7 @@ def empty_folder():
     # ITV-001: Empty Folder - Notification instead of Dialog
     # kodi_utils.msg_dlg(Script.localize(TXT_NO_ITEMS_FOUND))
     # Script.notify('ITV hub', Script.localize(TXT_NO_ITEMS_FOUND), icon=Script.NOTIFY_INFO, display_time=6000)
-    xbmc.executebuiltin('Notification(Information,Empty Folder,5000,special://userdata/customisations/Addon Icons/ITVX.png)')  
+    log_message('EMPTY FOLDER, POSSIBLY CONTINUE WATCHING') 
     return False
 
 
