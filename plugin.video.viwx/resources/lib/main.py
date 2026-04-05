@@ -181,34 +181,27 @@ class Paginator:
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])
                 
                 # ITV-004: use image with logo, remove " - x episodes from title"
-                listr = str(shows_list)
-                # log_message('LISTR = ' + listr)
+                listr = str(show)
+                # log_message('             LISTR = ' + listr)
                 
                 # find value for 'thumb'
-                thumbstr = str(li.art.thumb)
-                thumborigstr = thumbstr
-                # log_message('THUMB = ' + thumbstr)
-                
-                # find value for 'fanart'
-                fanartstr = str(li.art.fanart)
-                # log_message('FANART = ' + fanartstr)
-                
+                thumborigstr = str(li.art.thumb)
+                # log_message('             THUMB = ' + str(li.art.thumb))
+
                 # set value for 'thumb' to value for 'fanart'
-                li.art.thumb = fanartstr
-                # thumbstr = str(li.art.thumb)
-                # log_message('UPDATED THUMB = ' + thumbstr)
+                log_message('            FANART = ' + str(li.art.fanart))
+                li.art.thumb = li.art.fanart
+                log_message('     UPDATED THUMB = ' + str(li.art.thumb))
     
                 # set value for 'fanart' to original value for 'thumb'
-                li.art.fanart = thumborigstr
-                # fanartstr = str(li.art.thumb)                
-                # log_message('UPDATED FANART = ' + fanartstr)
+                li.art.fanart = thumborigstr               
+                log_message('    UPDATED FANART = ' + str(li.art.fanart))
                 
-                # find value for 'label'
-                labelstr = str(li.label)
-                # log_message('LABEL = ' + labelstr)
                 # set value for 'title' to 'label' 
-                li.info.title = labelstr
-                
+                log_message('             LABEL = ' + str(li.label))
+                log_message('        INFO_TITLE = ' + str(li.info.title))
+                li.info.title = li.label
+                log_message('UPDATED INFO_TITLE = ' + str(li.info.title))
                 # END ITV-004: use image with logo, remove " - x episodes from title"
                 
                 li.context.extend(show.get('ctx_mnu', []))
