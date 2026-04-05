@@ -308,7 +308,9 @@ def episodes(url, use_cache=False, prefer_bsl=False):
                     'label': title,
                     'art': {'thumb': programme_thumb, 'fanart': programme_fanart},
                     # TODO: add more info, like series number, number of episodes
-                    'info': {'title': '[B]{} - {}[/B]'.format(programme_title, title),
+                    # ITV-004: remove Bold highlighting
+                    # 'info': {'title': '[B]{} - {}[/B]'.format(programme_title, title),
+                    'info': {'title': '{} - {}'.format(programme_title, title),
                              'plot': '{}\n\n{} - {} episodes'.format(
                                  brand_description, title, series['numberOfAvailableEpisodes'])},
 
