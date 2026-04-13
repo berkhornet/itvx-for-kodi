@@ -708,7 +708,10 @@ def parse_last_watched_item(item, utc_now):
     episode_name = item.get('episodeTitle')
     series_nr = item.get('seriesNumber')
     episode_nr = item.get('episodeNumber')
-    img_link = item.get('itvxImageLink', '')
+    # ITV-004: START: Use image with logo
+    # img_link = item.get('itvxImageLink', '')
+    img_link = item.get('itvxProgrammeImageLink', '')
+    # ITV-004: END: Use image with logo
     available_td = utils.strptime(item['availabilityEnd'], "%Y-%m-%dT%H:%M:%SZ") - utc_now
     days_available = int(available_td.days + 0.99)
 
@@ -745,7 +748,10 @@ def parse_last_watched_item(item, utc_now):
         'show': {
             'label': episode_name or progr_name,
             'art': {'thumb': img_link.format(**IMG_PROPS_THUMB),
-                    'fanart': img_link.format(**IMG_PROPS_FANART)},
+                    # ITV-004 START: use image with logo for Continue Watching items
+                    # 'fanart': img_link.format(**IMG_PROPS_FANART)},
+                    'fanart': img_link.format(**IMG_PROPS_THUMB)},
+                    # ITV-004 END: use image with logo for Continue Watching items                   
             'info': {'title': title,
                      'plot': info,
                      'sorttitle': sort_title(title),
