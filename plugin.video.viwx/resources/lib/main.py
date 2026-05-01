@@ -59,7 +59,24 @@ def log_message(message, level=xbmc.LOGINFO):
             message = str(message)
         xbmc.log(f"[ITVX] {message}", level)
     except Exception as e:
-        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR)    
+        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR) 
+
+def strip_after(text: str, marker: str) -> str:
+    """
+    Removes everything after the first occurrence of `marker` in `text`.
+    If marker is not found, returns the original text.
+    """
+    if not isinstance(text, str) or not isinstance(marker, str):
+        raise TypeError("Both text and marker must be strings.")
+    if marker == "":
+        raise ValueError("Marker cannot be an empty string.")
+
+    index = text.find(marker)
+    if index != -1:
+        return text[:index]  # Keep everything before marker
+    return text  # Marker not found, return original    
+
+        
 # ITV-004: END use image with logo  
 
 
@@ -180,29 +197,36 @@ class Paginator:
             try:
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])
                 
-                # ITV-004: use image with logo, remove " - x episodes from title"
+                # ITV-004: use image with logo, remove unwanted strings from title
                 listr = str(show)
-                # log_message('             LISTR = ' + listr)
-                
-                # find value for 'thumb'
-                thumborigstr = str(li.art.thumb)
-                # log_message('             THUMB = ' + str(li.art.thumb))
-
-                # set value for 'thumb' to value for 'fanart'
-                log_message('            FANART = ' + str(li.art.fanart))
-                li.art.thumb = li.art.fanart
-                log_message('     UPDATED THUMB = ' + str(li.art.thumb))
-    
-                # set value for 'fanart' to original value for 'thumb'
-                li.art.fanart = thumborigstr               
-                log_message('    UPDATED FANART = ' + str(li.art.fanart))
-                
-                # set value for 'title' to 'label' 
-                log_message('             LABEL = ' + str(li.label))
-                log_message('        INFO_TITLE = ' + str(li.info.title))
-                li.info.title = li.label
-                log_message('UPDATED INFO_TITLE = ' + str(li.info.title))
-                # END ITV-004: use image with logo, remove " - x episodes from title"
+                log_message('             LISTR = ' + listr)            
+                # if 'fanart' exists, swap values with 'thumb'
+                try:
+                    # store value for 'thumb'
+                    str_thumb = str(li.art.thumb)
+                    log_message('             THUMB = ' + str(li.art.thumb))
+                    log_message('            FANART = ' + str(li.art.fanart))
+                    li.art.thumb = li.art.fanart
+                    log_message('     UPDATED THUMB = ' + str(li.art.thumb))   
+                    # set value for 'fanart' to original value for 'thumb'
+                    li.art.fanart = str_thumb              
+                    log_message('    UPDATED FANART = ' + str(li.art.fanart))
+                except Exception:
+                    pass   
+                # format show title  
+                log_message('INFO_TITLE = ' + str(li.info.title)) 
+                str_info_title_1 = str(li.info.title)
+                # for Continue Watching items, remove  - [I]next episode[/I]
+                str_info_title_2 = str_info_title_1.replace(' - [I]next episode[/I]', '')
+                # for Programme items remove Bold highlighting and - x episodes
+                if str_info_title_2.endswith(" episodes"):
+                    str_info_title_3 = strip_after(str_info_title_2, "[/B] - ")
+                    str_info_title_4 = str_info_title_3.replace('[B]', '')
+                else:
+                    str_info_title_4 = str_info_title_2
+                li.info.title = str_info_title_4                    
+                log_message('UPDATED INFO_TITLE = ' + str(li.info.title))                   
+                # END ITV-004: use image with logo, remove unwanted strings from title
                 
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
