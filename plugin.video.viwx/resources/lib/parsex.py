@@ -701,13 +701,25 @@ def parse_my_list_item(item, hide_paid=False):
         logger.warning("Unexpected error parsing MyList item:\n", exc_info=True)
         return None
 
-
 def parse_last_watched_item(item, utc_now):
     progr_name = item.get('programmeTitle', '')
     progr_id = item.get('programmeId', '').replace('/', '_')
     episode_name = item.get('episodeTitle')
     series_nr = item.get('seriesNumber')
     episode_nr = item.get('episodeNumber')
+    
+    # ITV-004: START create AF3 type "episode header"
+    # Define color variables using Kodi color syntax
+    color_white = "[COLOR white]"
+    color_end = "[/COLOR]"
+    # Pad episode number with a leading zero
+    episode_nr_pad = f"{episode_nr:02d}"
+    # create AF3 type episode_header
+    episode_header = "[B]" + str(series_nr) + "x" + str(episode_nr_pad) + ". " + episode_name + "[/B][CR]" 
+    # add colour to episode_header to resemble AF3 library episodes formatting
+    episode_header_colour = f"{color_white}{episode_header}{color_end}"   
+    # ITV-004: END create AF3 type "episode header"
+    
     # ITV-004: START: Use image with logo
     # img_link = item.get('itvxImageLink', '')
     img_link = item.get('itvxProgrammeImageLink', '')
@@ -729,18 +741,22 @@ def parse_last_watched_item(item, utc_now):
             hours_available, 's' if hours_available != 1 else '')
 
     info = ''.join((
+        episode_header_colour if series_nr else '', # ITV-004: use AF3 type "episode header"
         item['synopsis'] if 'FREE' in item['tier'] else premium_plot(item['synopsis']),
         '\n\n',
-        episode_name or '',
-        ' - ' if episode_name and series_nr else '',
-        'series {} episode {}'.format(series_nr, episode_nr) if series_nr else '',
-        availability
+        # episode_name or '', # ITV-004: remove episode name
+        # ' - ' if episode_name and series_nr else '', #ITV-004 remove
+        # 'series {} episode {}'.format(series_nr, episode_nr) if series_nr else '', #ITV-004: renoce original series/episode line
+        # availability # ITV-004: remove available for x year line
     ))
 
     if item.get('isNextEpisode'):
         title = progr_name + ' - [I]next episode[/I]'
     else:
-        title = '{} - [I]{}% watched[/I]'.format(progr_name, int(item['percentageWatched'] * 100))
+        # ITV-004: START remove % watched from title
+        # title = '{} - [I]{}% watched[/I]'.format(progr_name, int(item['percentageWatched'] * 100))
+        title = progr_name
+        # ITV-004: END remove % watched from title
 
     item_dict = {
         'type': 'vodstream',
