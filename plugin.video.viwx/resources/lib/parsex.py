@@ -708,7 +708,7 @@ def parse_last_watched_item(item, utc_now):
     series_nr = item.get('seriesNumber')
     episode_nr = item.get('episodeNumber')
     
-    # ITV-004: START create AF3 type "episode header"
+    # ITV-006: START create AF3 type "episode header"
     # Define color variables using Kodi color syntax
     color_white = "[COLOR white]"
     color_end = "[/COLOR]"
@@ -718,12 +718,13 @@ def parse_last_watched_item(item, utc_now):
     episode_header = "[B]" + str(series_nr) + "x" + str(episode_nr_pad) + ". " + episode_name + "[/B][CR]" 
     # add colour to episode_header to resemble AF3 library episodes formatting
     episode_header_colour = f"{color_white}{episode_header}{color_end}"   
-    # ITV-004: END create AF3 type "episode header"
+    # ITV-006: END create AF3 type "episode header"
     
-    # ITV-004: START: Use image with logo
+    # ITV-007: START Use image with logo
     # img_link = item.get('itvxImageLink', '')
     img_link = item.get('itvxProgrammeImageLink', '')
-    # ITV-004: END: Use image with logo
+    # ITV-007: END Use image with logo
+    
     available_td = utils.strptime(item['availabilityEnd'], "%Y-%m-%dT%H:%M:%SZ") - utc_now
     days_available = int(available_td.days + 0.99)
 

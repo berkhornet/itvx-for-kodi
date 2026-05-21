@@ -46,7 +46,9 @@ TXT_PREMIUM_CONTENT = 30622
 TXT_ADD_TO_MYLIST = 30801
 TXT_REMOVE_FROM_MYLIST = 30802
 
-# ITV-004: use image with logo        
+
+# ITV-008: START debug message
+debug = True
 def log_message(message, level=xbmc.LOGINFO):
     """
     Logs a message to the Kodi log file.
@@ -59,8 +61,18 @@ def log_message(message, level=xbmc.LOGINFO):
             message = str(message)
         xbmc.log(f"[ITVX] {message}", level)
     except Exception as e:
-        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR) 
+        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR)
+# ITV-008: END debug message
 
+
+# ITV-009: START Custom root (Main menu)
+import xbmcvfs
+media_dir = xbmcvfs.translatePath('special://home/addons/plugin.video.viwx/resources/media/')
+fanart_path = xbmcvfs.translatePath('special://userdata\customisations\Addon Fanart\ITVX Fanart.png"')
+# ITV-009: END Custom root (Main menu)
+
+
+# ITV-007: START use image with logo - new function
 def strip_after(text: str, marker: str) -> str:
     """
     Removes everything after the first occurrence of `marker` in `text`.
@@ -74,17 +86,15 @@ def strip_after(text: str, marker: str) -> str:
     index = text.find(marker)
     if index != -1:
         return text[:index]  # Keep everything before marker
-    return text  # Marker not found, return original    
+    return text  # Marker not found, return original           
+# ITV-007: END use image with logo - new function
 
-        
-# ITV-004: END use image with logo  
-
-
+  
 def empty_folder():
     # ITV-001: Empty Folder - Notification instead of Dialog
     # kodi_utils.msg_dlg(Script.localize(TXT_NO_ITEMS_FOUND))
     # Script.notify('ITV hub', Script.localize(TXT_NO_ITEMS_FOUND), icon=Script.NOTIFY_INFO, display_time=6000)
-    log_message('EMPTY FOLDER, POSSIBLY CONTINUE WATCHING') 
+    log_message('empty_folder: notification') 
     return False
 
 
@@ -195,12 +205,16 @@ class Paginator:
 
         for show in shows_list:
             try:
-                li = Listitem.from_dict(callb_map[show['type']], **show['show'])
                 
-                # ITV-004: use image with logo, remove unwanted strings from title
-                listr = str(show)
-                log_message('             LISTR = ' + listr)            
-                # if 'fanart' exists, swap values with 'thumb'
+                # ITV-008: START debug
+                if debug == True:
+                    listr = str(show)                    
+                    log_message('_generate_page: listr = ' + listr)
+                # ITV-008: End debug
+                
+                li = Listitem.from_dict(callb_map[show['type']], **show['show'])                
+                
+                # ITV-007: START use image with logo - if 'fanart' exists, swap values with 'thumb'          
                 try:
                     # store value for 'thumb'
                     str_thumb = str(li.art.thumb)
@@ -212,9 +226,12 @@ class Paginator:
                     li.art.fanart = str_thumb              
                     log_message('    UPDATED FANART = ' + str(li.art.fanart))
                 except Exception:
-                    pass   
-                # format show title  
-                log_message('INFO_TITLE = ' + str(li.info.title)) 
+                    pass
+                # ITV-007: END use image with logo - if 'fanart' exists, swap values with 'thumb'          
+                    
+                # ITV-004 and ITV-008: START format show title and debug
+                if debug == True:
+                    log_message('_generate_page: li.info.title = ' + str(li.info.title)) 
                 str_info_title_1 = str(li.info.title)
                 # for Continue Watching items, remove  - [I]next episode[/I]
                 str_info_title_2 = str_info_title_1.replace(' - [I]next episode[/I]', '')
@@ -224,9 +241,10 @@ class Paginator:
                     str_info_title_4 = str_info_title_3.replace('[B]', '')
                 else:
                     str_info_title_4 = str_info_title_2
-                li.info.title = str_info_title_4                    
-                log_message('UPDATED INFO_TITLE = ' + str(li.info.title))                   
-                # END ITV-004: use image with logo, remove unwanted strings from title
+                li.info.title = str_info_title_4 
+                if debug == True:                
+                    log_message('_generate_page: updated li.info.title' + str(li.info.title))                   
+                # ITV-004 and ITV-008: END format show title and debug
                 
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
@@ -248,9 +266,9 @@ class Paginator:
         else:
             return self._generate_page()
 
-# ITV-003: Customise viewtypes
-# @Route.register(content_type='videos')
-@Route.register(content_type='files')
+# ITV-009: START Custom root (Main Menu)
+"""
+@Route.register(content_type='videos')
 def root(_):
     # ITV-004: capitalise itvX
     # yield Listitem.from_dict(sub_menu_my_itvx, 'My itvX')
@@ -265,7 +283,53 @@ def root(_):
     yield Listitem.from_dict(list_collections, 'Collections')
     yield Listitem.from_dict(list_categories, 'Categories')
     yield Listitem.search(do_search, Script.localize(TXT_SEARCH))
+"""
 
+@Route.register(content_type='images')
+def root(_):
+    
+    # My List
+    li = Listitem.from_dict(generic_list, 'My List', params={'list_type': 'mylist', 'filter_char': None})
+    li.art["thumb"] = media_dir + 'My List.png'
+
+    yield li
+    
+    # Continue Watching
+    li = Listitem.from_dict(generic_list, 'Continue Watching', params={'list_type': 'watching', 'filter_char': None})
+    li.art["thumb"] = media_dir + 'Continue Watching v2.png'
+    yield li
+    
+    # Categories
+    li = Listitem.from_dict(list_categories, 'Categories')
+    li.art["thumb"] = media_dir + 'Categories.png'
+    yield li
+    
+    # Collections
+    li = Listitem.from_dict(list_collections, 'Collections')
+    li.art["thumb"] = media_dir + 'Collections.png'
+    yield li
+    
+    # Trending
+    for item in itvx.main_page_items():
+        itemtype = item['show']['label']
+        if itemtype == 'Trending':
+            callback = callb_map.get(item['type'], play_title)
+            li = Listitem.from_dict(callback, **item['show'])
+            li.context.extend(item.get('ctx_mnu', []))
+            _my_list_context_mnu(li, item.get('programme_id'))       
+            li.art["thumb"] = media_dir + 'Trending.png'
+            yield li
+    
+    # Live
+    li = Listitem.from_dict(sub_menu_live, 'Live', params={'_cache_to_disc_': False})
+    li.art["thumb"] = media_dir + 'Live TV.png'
+    yield li
+    
+    # Search
+    li = Listitem.search(do_search, Script.localize(TXT_SEARCH))
+    li.art["thumb"] = media_dir + 'Search.png'
+    yield li
+# ITV-009: END Custom root (Main Menu)    
 
 # ITV-003: Customise viewtypes
 # @Route.register(content_type='videos')
