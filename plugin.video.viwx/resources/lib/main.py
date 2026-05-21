@@ -291,22 +291,25 @@ def root(_):
     # My List
     li = Listitem.from_dict(generic_list, 'My List', params={'list_type': 'mylist', 'filter_char': None})
     li.art["thumb"] = media_dir + 'My List.png'
-
+    li.art["fanart"] = ''   
     yield li
     
     # Continue Watching
     li = Listitem.from_dict(generic_list, 'Continue Watching', params={'list_type': 'watching', 'filter_char': None})
     li.art["thumb"] = media_dir + 'Continue Watching.png'
+    li.art["fanart"] = ''       
     yield li
     
     # Categories
     li = Listitem.from_dict(list_categories, 'Categories')
     li.art["thumb"] = media_dir + 'Categories.png'
+    li.art["fanart"] = ''       
     yield li
     
     # Collections
     li = Listitem.from_dict(list_collections, 'Collections')
     li.art["thumb"] = media_dir + 'Collections.png'
+    li.art["fanart"] = ''       
     yield li
     
     # Trending
@@ -318,16 +321,19 @@ def root(_):
             li.context.extend(item.get('ctx_mnu', []))
             _my_list_context_mnu(li, item.get('programme_id'))       
             li.art["thumb"] = media_dir + 'Trending.png'
+            li.art["fanart"] = ''             
             yield li
     
     # Live
     li = Listitem.from_dict(sub_menu_live, 'Live', params={'_cache_to_disc_': False})
     li.art["thumb"] = media_dir + 'Live TV.png'
+    li.art["fanart"] = ''       
     yield li
     
     # Search
     li = Listitem.search(do_search, Script.localize(TXT_SEARCH))
     li.art["thumb"] = media_dir + 'Search.png'
+    li.art["fanart"] = ''   
     yield li
 # ITV-009: END Custom root (Main Menu)    
 
