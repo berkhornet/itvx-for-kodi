@@ -296,7 +296,7 @@ def root(_):
     
     # Continue Watching
     li = Listitem.from_dict(generic_list, 'Continue Watching', params={'list_type': 'watching', 'filter_char': None})
-    li.art["thumb"] = media_dir + 'Continue Watching v2.png'
+    li.art["thumb"] = media_dir + 'Continue Watching.png'
     yield li
     
     # Categories
