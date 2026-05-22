@@ -67,7 +67,7 @@ def log_message(message, level=xbmc.LOGINFO):
 
 # ITV-009: START Custom root (Main menu)
 import xbmcvfs
-media_dir = xbmcvfs.translatePath('special://userdata/customisations/Addon Icons/VOD Addon Artwork/ITVX/')
+media_dir = xbmcvfs.translatePath('special://userdata/customisations/Addon Icons/VOD Addon Artwork/ITVX v2/')
 fanart_path = xbmcvfs.translatePath('special://userdata/customisations/Addon Fanart/ITVX Fanart.png"')
 # ITV-009: END Custom root (Main menu)
 
