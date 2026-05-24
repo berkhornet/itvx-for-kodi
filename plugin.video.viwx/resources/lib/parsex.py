@@ -798,7 +798,9 @@ def parse_last_watched_item(item, utc_now):
         'type': 'vodstream',
         'programme_id': progr_id,
         'show': {
-            'label': episode_name or progr_name,
+            # ITV-004: use program name as first choice
+            #'label': episode_name or progr_name,
+            'label': progr_name or episode_name,
             'art': {'thumb': img_link.format(**IMG_PROPS_THUMB),
                     # ITV-004 START: use image with logo for Continue Watching items
                     # 'fanart': img_link.format(**IMG_PROPS_FANART)},
@@ -809,9 +811,7 @@ def parse_last_watched_item(item, utc_now):
                      'sorttitle': sort_title(title),
                      'date': utils.reformat_date(item['viewedOn'], "%Y-%m-%dT%H:%M:%SZ", "%d.%m.%Y"),
                      'duration': utils.duration_2_seconds(item['duration']),
-                     
-                     'mediatype': 'episode',
-                     
+                     'mediatype': 'episode',                    
                      'season': series_nr,
                      'episode': episode_nr},
             'params': {'url': ('https://magni.itv.com/playlist/itvonline/ITV/' +
@@ -831,6 +831,9 @@ def parse_last_watched_item(item, utc_now):
         item_dict['show']['art']['poster'] = img_link.format(**IMG_PROPS_POSTER)
     elif item['contentType'] == 'EPISODE' and progr_id:
         item_dict['ctx_mnu'] = [ctx_mnu_all_episodes(progr_id)]
+        
+    if debug == True:
+        log_message('parse_last_watched_item = ' + str(item_dict))   
     return item_dict
 
 
