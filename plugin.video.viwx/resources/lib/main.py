@@ -229,22 +229,9 @@ class Paginator:
                     pass
                 # ITV-007: END use image with logo - if 'fanart' exists, swap values with 'thumb'          
                     
-                # ITV-004 and ITV-008: START format show title and debug
-                if debug == True:
-                    log_message('_generate_page: li.info.title = ' + str(li.info.title)) 
-                str_info_title_1 = str(li.info.title)
-                # for Continue Watching items, remove  - [I]next episode[/I]
-                str_info_title_2 = str_info_title_1.replace(' - [I]next episode[/I]', '')
-                # for Programme items remove Bold highlighting and - x episodes
-                if str_info_title_2.endswith(" episodes"):
-                    str_info_title_3 = strip_after(str_info_title_2, "[/B] - ")
-                    str_info_title_4 = str_info_title_3.replace('[B]', '')
-                else:
-                    str_info_title_4 = str_info_title_2
-                li.info.title = str_info_title_4 
-                if debug == True:                
-                    log_message('_generate_page: updated li.info.title' + str(li.info.title))                   
-                # ITV-004 and ITV-008: END format show title and debug
+                # ITV-004: START use "clean" title
+                li.info.title = show['show']['label']
+                # ITV-004: END use "clean" title
                 
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
@@ -528,6 +515,7 @@ def list_category(addon, path, filter_char=None, page_nr=0):
 
     logger.info("Listed category %s with % items", path, len(shows_list) if shows_list else 0)
     paginator = Paginator(shows_list, filter_char, page_nr, path=path)
+
     yield from paginator
 
 
@@ -561,7 +549,18 @@ def list_productions(plugin, url, series_idx=None):
     result = itvx.episodes(url, use_cache=True, prefer_bsl=plugin.setting.get_boolean('prefer_bsl'))
     if not result:
         return
-
+    
+    # ITV-010: START get TV Show title    
+    page_data = itvx.get_page_data(url, cache_time=0)
+    programme = page_data['programme']
+    programme_title = programme['title']    
+    # ITV-010: END get TV Show title    
+          
+    # ITV-008: START debug
+    if debug == True:
+        log_message('list_productions: result = ' + str(result))
+    # ITV-008: END debug
+    
     series_map, programme_id = result
 
     if len(series_map) == 1:
@@ -574,6 +573,10 @@ def list_productions(plugin, url, series_idx=None):
         # list episodes of a series
         episodes = opened_series['episodes']
         for episode in episodes:
+            # ITV-008: START debug
+            if debug == True:
+                log_message('list_productions: episode = ' + str(episode))
+            # ITV-008: END debug
             li = Listitem.from_dict(play_stream_catchup, **episode)
             date = episode['info'].get('date')
             if date:
@@ -581,6 +584,14 @@ def list_productions(plugin, url, series_idx=None):
                     li.info.date(date, '%Y-%m-%dT%H:%M:%S.%fZ')
                 except ValueError:
                     li.info.date(date, '%Y-%m-%dT%H:%M:%SZ')
+                    
+            # ITV-010: START Set up episode data
+            li.info['episode'] = episode['info']['episode']
+            li.info['season'] = episode['info']['season']
+            li.info['mediatype'] = 'episode'
+            li.info['tvshowtitle'] = programme_title
+            li.info['title'] = episode['params']['name']
+            # ITV-010: END Set up episode data        
             yield li
     else:
         # List folders of all series
