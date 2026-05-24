@@ -22,6 +22,26 @@ from .errors import ParseError
 TXT_PLAY_FROM_START = 30620
 TXT_VIEW_ALL_EPISODES = 30803
 
+# ITV-008: START debug message
+import xbmc
+debug = True
+def log_message(message, level=xbmc.LOGINFO):
+    """
+    Logs a message to the Kodi log file.
+    
+    :param message: The text to log
+    :param level: Kodi log level (default: LOGINFO)
+    """
+    try:
+        if not isinstance(message, str):
+            message = str(message)
+        xbmc.log(f"[ITVX] {message}", level)
+    except Exception as e:
+        xbmc.log(f"[ITVX] Logging failed: {e}", xbmc.LOGERROR)
+# ITV-008: END debug message
+        
+
+
 logger = logging.getLogger(logger_id + '.parse')
 
 # NOTE: The resolutions below are those specified by Kodi for their respective usage. There is no guarantee that
@@ -700,13 +720,27 @@ def parse_my_list_item(item, hide_paid=False):
     except:
         logger.warning("Unexpected error parsing MyList item:\n", exc_info=True)
         return None
+        
 
 def parse_last_watched_item(item, utc_now):
+        
+    # ITV-008: START debug
+    if debug == True:
+        log_message('parse_last_watched_item: item = ' + str(item))
+    # ITV-008: END debug
+    
     progr_name = item.get('programmeTitle', '')
     progr_id = item.get('programmeId', '').replace('/', '_')
     episode_name = item.get('episodeTitle')
     series_nr = item.get('seriesNumber')
     episode_nr = item.get('episodeNumber')
+    
+    if series_nr == None:
+        series_nr = 0
+    if episode_nr == None:
+       episode_nr = 0
+    if episode_name == None:
+       episode_name = 'Episode ' + str(episode_nr)        
     
     # ITV-006: START create AF3 type "episode header"
     # Define color variables using Kodi color syntax
@@ -740,7 +774,7 @@ def parse_last_watched_item(item, utc_now):
         hours_available = int(available_td.seconds / 3600)
         availability = '\n[COLOR orange]Only {} hour{} available.[/COLOR]'.format(
             hours_available, 's' if hours_available != 1 else '')
-
+    
     info = ''.join((
         episode_header_colour if series_nr else '', # ITV-004: use AF3 type "episode header"
         item['synopsis'] if 'FREE' in item['tier'] else premium_plot(item['synopsis']),
@@ -750,6 +784,7 @@ def parse_last_watched_item(item, utc_now):
         # 'series {} episode {}'.format(series_nr, episode_nr) if series_nr else '', #ITV-004: renoce original series/episode line
         # availability # ITV-004: remove available for x year line
     ))
+    
 
     if item.get('isNextEpisode'):
         title = progr_name + ' - [I]next episode[/I]'
@@ -774,6 +809,9 @@ def parse_last_watched_item(item, utc_now):
                      'sorttitle': sort_title(title),
                      'date': utils.reformat_date(item['viewedOn'], "%Y-%m-%dT%H:%M:%SZ", "%d.%m.%Y"),
                      'duration': utils.duration_2_seconds(item['duration']),
+                     
+                     'mediatype': 'episode',
+                     
                      'season': series_nr,
                      'episode': episode_nr},
             'params': {'url': ('https://magni.itv.com/playlist/itvonline/ITV/' +
