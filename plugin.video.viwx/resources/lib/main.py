@@ -233,6 +233,12 @@ class Paginator:
                 li.info.title = show['show']['label']
                 # ITV-004: END use "clean" title
                 
+                # ITV-010: START Set up tvshow data
+                li.info['mediatype'] = 'tvshow'
+                li.info['tvshowtitle'] = show['show']['label']
+                li.info['title'] = show['show']['label'] 
+                # ITV-010: END Set up tvshow data               
+                
                 li.context.extend(show.get('ctx_mnu', []))
                 # Create 'My List' add/remove context menu entries here, so as to be able to update these
                 # entries after adding/removing an item, even when the underlying data is cached.
@@ -591,6 +597,8 @@ def list_productions(plugin, url, series_idx=None):
             li.info['mediatype'] = 'episode'
             li.info['tvshowtitle'] = programme_title
             li.info['title'] = episode['params']['name']
+            li.art['thumb'] = episode['art']['fanart']
+            li.art['landscape'] = episode['art']['thumb']           
             # ITV-010: END Set up episode data        
             yield li
     else:
@@ -598,6 +606,12 @@ def list_productions(plugin, url, series_idx=None):
         for series in series_map.values():
             li = Listitem.from_dict(list_productions, **series['series'])
             _my_list_context_mnu(li, programme_id)
+            
+            # ITV-010: START Set up season data
+            li.info['mediatype'] = 'season'
+            li.info['tvshowtitle'] = programme_title           
+            # ITV-010: END Set up season data 
+            
             yield li
 
 
