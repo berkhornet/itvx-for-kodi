@@ -214,20 +214,9 @@ class Paginator:
                 
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])                
                 
-                # ITV-007: START use image with logo - if 'fanart' exists, swap values with 'thumb'          
-                try:
-                    # store value for 'thumb'
-                    str_thumb = str(li.art.thumb)
-                    log_message('             THUMB = ' + str(li.art.thumb))
-                    log_message('            FANART = ' + str(li.art.fanart))
-                    li.art.thumb = li.art.fanart
-                    log_message('     UPDATED THUMB = ' + str(li.art.thumb))   
-                    # set value for 'fanart' to original value for 'thumb'
-                    li.art.fanart = str_thumb              
-                    log_message('    UPDATED FANART = ' + str(li.art.fanart))
-                except Exception:
-                    pass
-                # ITV-007: END use image with logo - if 'fanart' exists, swap values with 'thumb'          
+                # ITV-007: START use image with logo (no idea why this works!)       
+                li.art.fanart = ''              
+                # ITV-007: END use image with logo           
                     
                 # ITV-004: START use "clean" title
                 li.info.title = show['show']['label']
