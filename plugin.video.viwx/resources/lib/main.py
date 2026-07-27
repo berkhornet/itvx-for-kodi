@@ -15,6 +15,9 @@ import xbmc
 import xbmcplugin
 from xbmcgui import ListItem
 
+# ITV-012: additional import
+import xbmcgui
+
 from codequick import Route, Resolver, Listitem, Script, run as cc_run
 from codequick.support import logger_id, dispatcher
 
@@ -68,7 +71,7 @@ def log_message(message, level=xbmc.LOGINFO):
 # ITV-009: START Custom root (Main menu)
 import xbmcvfs
 media_dir = xbmcvfs.translatePath('special://userdata/customisations/Addon Icons/VOD Addon Artwork/ITVX v2/')
-fanart_path = xbmcvfs.translatePath('special://userdata/customisations/Addon Fanart/ITVX Fanart.png"')
+fanart_path = xbmcvfs.translatePath('special://userdata/customisations/Addon Fanart/ITVX Fanart.png')
 # ITV-009: END Custom root (Main menu)
 
 
@@ -91,11 +94,31 @@ def strip_after(text: str, marker: str) -> str:
 
   
 def empty_folder():
-    # ITV-001: Empty Folder - Notification instead of Dialog
+    # ITV-012: START Custom Empty List Handling
     # kodi_utils.msg_dlg(Script.localize(TXT_NO_ITEMS_FOUND))
     # Script.notify('ITV hub', Script.localize(TXT_NO_ITEMS_FOUND), icon=Script.NOTIFY_INFO, display_time=6000)
-    log_message('empty_folder: notification') 
-    return False
+    # return False
+    
+    itvx_list_type = 'ITVX - Empty List'
+
+    window_id = xbmcgui.getCurrentWindowId()
+    if window_id in (10000, 11101, 11102, 11103, 11104):
+        # Home page widget - simple empty list that displays nothing
+        xbmcplugin.endOfDirectory(dispatcher.handle, True)
+        sys.exit()
+    else:            
+        # Within the addon - display a fake empty directory
+        item = Listitem()
+        item.label = itvx_list_type
+        item.info['title'] = 'Empty List'
+        item.info['tvshowtitle'] = itvx_list_type
+        item.info['plot'] = 'Your requested list from ITVX is empty.'
+        item.info['duration'] = None
+        item.info['mediatype'] = 'image' # prevents AF3 Info_line display         
+        item.art["thumb"] = fanart_path
+        item.art["fanart"] = ''
+        yield item
+    # ITV-012: END Custom Empty List Handling
 
 
 def dynamic_listing(func=None):
