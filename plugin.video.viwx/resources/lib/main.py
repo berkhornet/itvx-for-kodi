@@ -294,7 +294,7 @@ def root(_):
 def root(_):
     
     # My List
-    li = Listitem.from_dict(generic_list, 'My List', params={'list_type': 'mylist', 'filter_char': None})
+    li = Listitem.from_dict(generic_list, 'Watchlist', params={'list_type': 'mylist', 'filter_char': None})
     li.art["thumb"] = media_dir + 'My List.png'
     li.art["fanart"] = ''   
     yield li
