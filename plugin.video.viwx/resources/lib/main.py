@@ -237,8 +237,9 @@ class Paginator:
                 
                 li = Listitem.from_dict(callb_map[show['type']], **show['show'])                
                 
-                # ITV-007: START use image with logo (no idea why this works!)       
-                li.art.fanart = ''              
+                # ITV-007: START use image with logo     
+                li.art.fanart = show['show']['art']['fanart']  
+                li.art.landscape = show['show']['art']['thumb']              
                 # ITV-007: END use image with logo           
                     
                 # ITV-004: START use "clean" title
